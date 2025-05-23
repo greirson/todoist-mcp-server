@@ -35,7 +35,7 @@ npm install -g @abhiz123/todoist-mcp-server
 ### todoist_create_task
 Create new tasks with various attributes:
 * Required: content (task title)
-* Optional: description, due date, priority level (1-4)
+* Optional: description, due date, priority level (1-4), labels, deadline
 * Example: "Create task 'Team Meeting' with description 'Weekly sync' due tomorrow"
 
 ### todoist_get_tasks
@@ -95,6 +95,7 @@ Add to your `claude_desktop_config.json`:
 "Create task 'Team Meeting'"
 "Add task 'Review PR' due tomorrow at 2pm"
 "Create high priority task 'Fix bug' with description 'Critical performance issue'"
+"Create task 'Shopping' with labels ['Personal', 'Errands'] and deadline 2024-12-25"
 ```
 
 ### Getting Tasks
@@ -140,6 +141,21 @@ npm install
 # Build the project
 npm run build
 ```
+
+## Changelog
+
+### v0.2.0 (Latest)
+- **Enhanced Task Creation**: Added support for labels and deadline parameters
+  - `labels`: Array of label names to assign to tasks
+  - `deadline`: Deadline date in YYYY-MM-DD format
+- **Improved API Compliance**: Better alignment with Todoist API v2 specification
+- **Enhanced Examples**: Updated documentation with new parameter usage examples
+
+### v0.1.0 (Initial Release)
+- Basic task management (create, read, update, delete, complete)
+- Natural language task search and filtering
+- Support for descriptions, due dates, and priority levels
+- MCP server implementation with stdio transport
 
 ## Contributing
 Contributions are welcome! Feel free to submit a Pull Request.

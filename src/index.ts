@@ -12,7 +12,7 @@ import { TodoistApi } from "@doist/todoist-api-typescript";
 // Define tools
 const CREATE_TASK_TOOL: Tool = {
   name: "todoist_create_task",
-  description: "Create a new task in Todoist with optional description, due date, and priority",
+  description: "Create a new task in Todoist with optional description, due date, priority, labels, and deadline",
   inputSchema: {
     type: "object",
     properties: {
@@ -32,6 +32,17 @@ const CREATE_TASK_TOOL: Tool = {
         type: "number",
         description: "Task priority from 1 (normal) to 4 (urgent) (optional)",
         enum: [1, 2, 3, 4]
+      },
+      labels: {
+        type: "array",
+        items: {
+          type: "string"
+        },
+        description: "Array of label names to assign to the task (optional)"
+      },
+      deadline: {
+        type: "string",
+        description: "Deadline date in YYYY-MM-DD format (optional)"
       }
     },
     required: ["content"]
@@ -157,6 +168,8 @@ function isCreateTaskArgs(args: unknown): args is {
   description?: string;
   due_string?: string;
   priority?: number;
+  labels?: string[];
+  deadline?: string;
 } {
   return (
     typeof args === "object" &&
@@ -232,16 +245,26 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       if (!isCreateTaskArgs(args)) {
         throw new Error("Invalid arguments for todoist_create_task");
       }
-      const task = await todoistClient.addTask({
+      const taskData: any = {
         content: args.content,
         description: args.description,
         dueString: args.due_string,
         priority: args.priority
-      });
+      };
+      
+      if (args.labels && args.labels.length > 0) {
+        taskData.labels = args.labels;
+      }
+      
+      if (args.deadline) {
+        taskData.deadline = args.deadline;
+      }
+      
+      const task = await todoistClient.addTask(taskData);
       return {
         content: [{ 
           type: "text", 
-          text: `Task created:\nTitle: ${task.content}${task.description ? `\nDescription: ${task.description}` : ''}${task.due ? `\nDue: ${task.due.string}` : ''}${task.priority ? `\nPriority: ${task.priority}` : ''}` 
+          text: `Task created:\nTitle: ${task.content}${task.description ? `\nDescription: ${task.description}` : ''}${task.due ? `\nDue: ${task.due.string}` : ''}${task.priority ? `\nPriority: ${task.priority}` : ''}${task.labels && task.labels.length > 0 ? `\nLabels: ${task.labels.join(', ')}` : ''}${args.deadline ? `\nDeadline: ${args.deadline}` : ''}` 
         }],
         isError: false,
       };
